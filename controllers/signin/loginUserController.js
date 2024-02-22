@@ -1,27 +1,29 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../../models/user');
-const bcrypt = require('bcryptjs')
 
-exports.loginUser = async(req, res) => {
-    try{
-        const {email, password} = req.body;
+exports.loginUser = async (req, res) => {
+    const { email, password } = req.body;
 
-        let user = await User.findOne({email})
-
-        if(!user){
-            res.status(405).send({message: "User not exists, Please register"})
+    try {
+        // Check if user with the provided email exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const checkPassword = await bcrypt.compare(password, user.password);
-
-        if(!checkPassword){
-            res.status(405).send({message: "Wrong Password"})
+        // Check if the provided password matches the user's password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
-        else{
-            let token = await user.generateAuthToken()
 
-            res.status(201).send({user: user, token: token})
-        }
-    } catch(error){
-        res.send({error: error.message})
+        // Generate JWT token
+        const token = await user.generateAuthToken();
+
+        res.json({ token });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Server Error' });
     }
-}
+};

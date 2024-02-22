@@ -1,35 +1,30 @@
 const express = require('express');
-const mongoose =  require('mongoose');
+const cors = require("cors");
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const app = express();
-const Note = require('./models/note')
-
+const commonRouter = require("./routes/commonRoutes");
 const connectToMongo = require("./db/db");
+
+// Initialize Express app
+const app = express();
+
+// Connect to MongoDB
 connectToMongo();
 
-app.listen(5000, ()=> {
-    console.log('node API is running on port 5000');
-});
-
+// Middleware
+app.use(cors());
 app.use(bodyParser.json());
 
+// Routes
+app.use(commonRouter);
+
+// Default route
 app.get('/', (req, res) => {
-    res.send('planner api wala server chal raha hai jinda YAYYYY!!!')
-})
+    res.send('Planner API');
+});
 
-app.post('/taskcreate', async(req, res)=> {
-    try{
-        console.log(req.body);
-        const note = await Note.create(req.body);
-        res.status(200).json(note);
-    } catch(error){
-        console.log(error.message);
-        res.status(500).json({message: error.message})
-    }
-})
-
-app.get('/task', async(req, res)=>{
-    const note = await Note.find({});
-    res.status(200).json(note);
-})
-
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

@@ -1,22 +1,27 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+
 const noteSchema = new mongoose.Schema({
-    title:{
+    title: {
         type: String,
         required: true,
     },
-    description:{
+    description: {
         type: String,
         required: true,
     },
-    dueDate:{
+    dueDate: {
         type: Date,
     },
-    createdDate:{
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'User',// Reference to User model's _id
+        required: true,
+    },
+    createdDate: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     }
 });
 
-const Note = mongoose.model('Note', noteSchema)
+const Note = mongoose.model('Note', noteSchema);
 
-module.exports = Note
+module.exports = Note;
